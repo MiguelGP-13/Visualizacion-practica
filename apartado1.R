@@ -6,61 +6,59 @@ library(plotly)
 
 # Cargar datos
 pacientes <- read_excel("data/pacientes.xlsx", sheet = 1)
+eventos_sangrado <- read_excel("data/eventos.xlsx", sheet = "sangrado")
+eventos_tromboticos <- read_excel("data/eventos.xlsx", sheet = "trombotico")
+
+# Agregar edad y sexo a las tablas de eventos
+eventos_sangrado <- eventos_sangrado %>%
+  inner_join(pacientes, by = "Paciente") %>%
+  select(Paciente, Edad, Sexo, `Tipo de sangrado`, `Gravedad de la hemorragia (TIMI)`, `Gravedad de la hemorragia (GUSTO)`, `Gravedad de la hemorragia (BARC)`, `Procedimientos terapéuticos`, `Descenso de hemoglobina`, `¿El paciente ha subido una trasfusión?`)
+
+eventos_tromboticos <- eventos_tromboticos %>%
+  inner_join(pacientes, by = "Paciente") %>%
+  select(Paciente, Edad, Sexo, `¿El paciente ha sufrido un evento trombótico previo a la inclusión?`, `Tipo de evento trombótico`, `Tipo de invervención`, `TYPE_THROMBOTIC_PRE`, `Numero  anticoagulantes`, `Numero  antiagregantes`, `Otro medicamentos`)
+
+# Unir ambas tablas en una sola
+eventos_totales <- bind_rows(
+  eventos_sangrado %>% mutate(Evento = "Sangrado"),
+  eventos_tromboticos %>% mutate(Evento = "Trombótico")
+)
 
 # UI
 ui <- fluidPage(
-  titlePanel("Distribución de Pacientes por Edad y Sexo"),
+  titlePanel("Visualización Interactiva de Eventos"),
   sidebarLayout(
     sidebarPanel(
-      helpText("Gráfico de pacientes según edad y sexo")
+      selectInput("tipo_evento", "Tipo de Evento:", choices = c("Todos", "Sangrado", "Trombótico")),
+      selectInput("sexo", "Género:", choices = c("Todos", unique(pacientes$Sexo))),
+      sliderInput("edad", "Edad:", min = min(pacientes$Edad), max = max(pacientes$Edad), value = c(min(pacientes$Edad), max(pacientes$Edad))),
+      checkboxInput("filtro_gravedad", "Filtrar por gravedad (sólo para sangrado)", FALSE)
     ),
     mainPanel(
-      plotlyOutput("edadPlot"),
-      plotlyOutput("edadGrupoPlot")
+      plotlyOutput("grafico_eventos")
     )
   )
 )
 
 # Server
 server <- function(input, output) {
-  output$edadPlot <- renderPlotly({
-    # Agrupar datos por edad y sexo
-    datos_agrupados <- pacientes %>%
-      group_by(Edad, Sexo) %>%
-      summarise(Conteo = n(), .groups = "drop")
+  output$grafico_eventos <- renderPlotly({
+    datos_filtrados <- eventos_totales %>%
+      filter((input$tipo_evento == "Todos" | Evento == input$tipo_evento) &
+               (input$sexo == "Todos" | Sexo == input$sexo) &
+               (Edad >= input$edad[1] & Edad <= input$edad[2]))
     
-    # Crear gráfico
-    p <- ggplot(datos_agrupados, aes(x = Edad, y = Conteo, color = Sexo, group = Sexo, text = paste("Edad:", Edad, "\nPacientes:", Conteo))) +
-      geom_line() +
-      geom_point() +
-      labs(title = "Distribución de Pacientes por Edad y Sexo",
-           x = "Edad",
-           y = "Número de Pacientes") +
+    if (input$filtro_gravedad & input$tipo_evento == "Sangrado") {
+      datos_filtrados <- datos_filtrados %>%
+        filter(!is.na(`Gravedad de la hemorragia (TIMI)`))
+    }
+    
+    p <- ggplot(datos_filtrados, aes(x = Edad, fill = Evento)) +
+      geom_histogram(binwidth = 5, position = "dodge") +
+      labs(title = "Distribución de Eventos por Edad", x = "Edad", y = "Frecuencia") +
       theme_minimal()
     
-    ggplotly(p, tooltip = "text")
-  })
-  
-  output$edadGrupoPlot <- renderPlotly({
-    # Agrupar edades en rangos de 3 en 3
-    pacientes <- pacientes %>%
-      mutate(GrupoEdad = (Edad %/% 3) * 3)
-    
-    # Agrupar datos por grupo de edad y sexo
-    datos_agrupados <- pacientes %>%
-      group_by(GrupoEdad, Sexo) %>%
-      summarise(Conteo = n(), .groups = "drop")
-    
-    # Crear gráfico
-    p <- ggplot(datos_agrupados, aes(x = GrupoEdad, y = Conteo, color = Sexo, group = Sexo, text = paste("Grupo de Edad:", GrupoEdad, "\nPacientes:", Conteo))) +
-      geom_line() +
-      geom_point() +
-      labs(title = "Distribución de Pacientes por Grupos de Edad y Sexo",
-           x = "Grupo de Edad",
-           y = "Número de Pacientes") +
-      theme_minimal()
-    
-    ggplotly(p, tooltip = "text")
+    ggplotly(p)
   })
 }
 
