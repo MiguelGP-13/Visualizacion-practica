@@ -40,57 +40,58 @@ ui <- fluidPage(
       sliderInput("edad", "Edad:", 
                   min = min(pacientes$Edad), max = max(pacientes$Edad), 
                   value = c(min(pacientes$Edad), max(pacientes$Edad))),
-      # Mostrar el control de "Gravedad" solo si se selecciona "Sangrado"
       conditionalPanel(
         condition = "input.tipo_evento == 'Sangrado'",
         checkboxGroupInput("gravedad", "Gravedad:", choices = c())
       ),
-      # Mostrar el control para "Tipo de evento trombótico" solo si se selecciona "Trombotico"
       conditionalPanel(
         condition = "input.tipo_evento == 'Trombotico'",
         checkboxGroupInput("trombotico", "Tipo de evento trombótico:", choices = c())
       )
     ),
     mainPanel(
-      plotOutput("grafico_eventos")
+      plotOutput("grafico_eventos", brush = brushOpts(id = "plot_brush"), dblclick = "plot_dblclick")
     )
   )
 )
 
 # Server
 server <- function(input, output, session) {
-  # Actualizar los checkboxes cuando cambia el tipo de evento
+  ranges <- reactiveValues(x = NULL)
+  
   observeEvent(input$tipo_evento, {
     if (input$tipo_evento == "Sangrado") {
       niveles_gravedad <- unique(na.omit(eventos_sangrado$`Gravedad de la hemorragia (TIMI)`))
-      niveles_gravedad <- as.character(niveles_gravedad)
-      updateCheckboxGroupInput(session, "gravedad", 
-                               choices = niveles_gravedad, 
-                               selected = niveles_gravedad)
-      # Limpiar el otro input
+      updateCheckboxGroupInput(session, "gravedad", choices = niveles_gravedad, selected = c())
       updateCheckboxGroupInput(session, "trombotico", choices = c(), selected = c())
     } else if (input$tipo_evento == "Trombotico") {
       niveles_trombotico <- unique(na.omit(eventos_tromboticos$`Tipo de evento trombótico`))
-      niveles_trombotico <- as.character(niveles_trombotico)
-      updateCheckboxGroupInput(session, "trombotico", 
-                               choices = niveles_trombotico, 
-                               selected = niveles_trombotico)
-      # Limpiar el input de gravedad
+      updateCheckboxGroupInput(session, "trombotico", choices = niveles_trombotico, selected = c())
       updateCheckboxGroupInput(session, "gravedad", choices = c(), selected = c())
-    } else {  # Si se selecciona "Todos"
+    } else {
       updateCheckboxGroupInput(session, "gravedad", choices = c(), selected = c())
       updateCheckboxGroupInput(session, "trombotico", choices = c(), selected = c())
     }
+    ranges$x <- NULL
+  })
+  
+  observeEvent(input$plot_brush, {
+    brush <- input$plot_brush
+    if (!is.null(brush)) {
+      ranges$x <- c(brush$xmin, brush$xmax)
+    }
+  })
+  
+  observeEvent(input$plot_dblclick, {
+    ranges$x <- NULL
   })
   
   output$grafico_eventos <- renderPlot({
-    # Filtrar según el tipo de evento, género y edad
     datos_filtrados <- eventos_totales %>%
       filter((input$tipo_evento == "Todos" | Evento == input$tipo_evento) &
                (input$sexo == "Todos" | Sexo == input$sexo) &
                (Edad >= input$edad[1] & Edad <= input$edad[2]))
     
-    # Filtrar adicionalmente según la selección de gravedad o trombótico
     if (input$tipo_evento == "Sangrado" && !is.null(input$gravedad) && length(input$gravedad) > 0) {
       datos_filtrados <- datos_filtrados %>%
         filter(`Gravedad de la hemorragia (TIMI)` %in% input$gravedad)
@@ -100,11 +101,24 @@ server <- function(input, output, session) {
         filter(`Tipo de evento trombótico` %in% input$trombotico)
     }
     
-    ggplot(datos_filtrados, aes(x = Edad, fill = Evento)) +
-      # Usar cortes fijos de 5 en 5 entre 48 y 98
-      geom_histogram(breaks = seq(48, 98, by = 5), position = "dodge", color = "black") +
-      labs(title = "Distribución de Eventos por Edad", x = "Edad", y = "Frecuencia") +
+    p <- ggplot(datos_filtrados, aes(
+      x = Edad, 
+      fill = case_when(
+        input$tipo_evento == "Todos" ~ Evento,
+        Evento == "Sangrado" ~ as.character(`Gravedad de la hemorragia (TIMI)`),
+        Evento == "Trombotico" ~ as.character(`Tipo de evento trombótico`),
+        TRUE ~ Evento
+      )
+    )) +
+      geom_histogram(breaks = seq(48, 98, by = 5), position = "stack", color = "black") +
+      labs(title = "Distribución de Eventos por Edad", x = "Edad", y = "Frecuencia", fill = "Leyenda") +
       theme_minimal()
+    
+    if (!is.null(ranges$x)) {
+      p <- p + xlim(ranges$x)
+    }
+    
+    p
   })
 }
 
