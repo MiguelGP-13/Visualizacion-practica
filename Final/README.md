@@ -1,5 +1,26 @@
 # Instrucciones Detalladas para Añadir una Nueva Página y Visualización a la App
 
+project/
+├── app.R                                  # Archivo principal para ejecutar la app
+├── modules/
+│   ├── ui_module.R                        # Controlador principal de UI
+│   ├── server_module.R                    # Controlador principal del servidor
+│   ├── data_processing.R                  # Procesamiento y carga de datos
+│   ├── utils.R                            # Funciones reutilizables
+│   ├── visualizations/                    # Carpeta de visualizaciones (servidor)
+│   │   ├── grafico_eventos.R              # Lógica del gráfico principal
+│   │   ├── detalle_tramo.R                # Lógica para los detalles del tramo
+│   │   ├── nueva_visualizacion.R          # Lógica para nueva visualización
+│   ├── views/                             # Carpeta de vistas (UI)
+│   │   ├── main.R                         # Página principal de navegación
+│   │   ├── grafico_eventos_ui.R           # UI del gráfico de eventos
+│   │   ├── detalle_tramo_ui.R             # UI de los detalles del tramo
+│   │   ├── nueva_visualizacion_ui.R       # UI de la nueva visualización
+├── data/                                  # Carpeta para los datos de entrada
+│   ├── pacientes.xlsx                     # Datos de pacientes
+│   ├── eventos.xlsx                       # Datos de eventos
+
+
 Este documento explica los pasos necesarios para añadir **una nueva página** y **una nueva visualización** a tu aplicación modularizada. Seguiremos la estructura propuesta, donde las secciones de la aplicación están organizadas en módulos.
 
 ## **1. Crear el Archivo de la Nueva Página**

@@ -4,7 +4,6 @@
 source("modules/views/main.R")
 source("modules/views/grafico_eventos_ui.R")
 source("modules/views/detalle_tramo_ui.R")
-source("modules/views/nueva_visualizacion_ui.R")
 
 # Definir la UI principal
 ui <- function(pacientes) {
@@ -13,7 +12,6 @@ ui <- function(pacientes) {
     tabPanel("Inicio", main_ui()),                      # Ventana de inicio
     tabPanel("Gráfico Eventos", grafico_eventos_ui(pacientes)), # Ventana del gráfico principal
     tabPanel("Detalle Tramo", detalle_tramo_ui()),      # Ventana para detalles del tramo
-    tabPanel("Nueva Visualización", nueva_visualizacion_ui())   # Ventana adicional
   )
 }
 
