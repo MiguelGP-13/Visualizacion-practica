@@ -1,20 +1,51 @@
-# modules/ui_module.R
+# modules/views/main.R
 
-# Cargar vistas
-source("modules/views/main.R")
-source("modules/views/grafico_eventos_ui.R")
-source("modules/views/sankey_terapias_ui.R")
-source("modules/views/bubble_diagnosticos_ui.R")
-# source("modules/views/perfil_individual_ui.R")
+library(shiny)
+library(bslib)
+library(shinyjs)
 
-# Definir la UI principal
-ui <- function(pacientes) {
-  navbarPage(
-    title = "Aplicación Interactiva",
-    theme = shinytheme("cerulean"),
-    tabPanel("Inicio", main_ui()),                      # Ventana de inicio
-    tabPanel("Gráfico Eventos", grafico_eventos_ui(pacientes)), # Ventana del gráfico eventos
-    # tabPanel("Perfil Individual", perfil_ui("perfil")), # Reporte de un paciente
+main_ui <- function() {
+  fluidPage(
+    useShinyjs(), # Habilitar shinyjs para la manipulación de la interfaz
+    
+    titlePanel(
+      h2("Bienvenido a la Aplicación Interactiva", align = "center"),
+      windowTitle = "Aplicación de Análisis de Datos"
+    ),
+    
+    # Barra lateral con opciones para elegir entre "Pacientes" o "Eventos"
+    sidebarLayout(
+      sidebarPanel(
+        h4("Selecciona una sección para explorar:", align = "center"),
+        
+        # Selector para elegir entre "Pacientes" o "Eventos"
+        selectInput("tipo_analisis", "Elige el tipo de análisis:",
+                    choices = c("Pacientes", "Eventos"), selected = "Pacientes"),
+        
+        # Botones con íconos
+        actionButton("go_grafico", label = "Gráfico de Eventos", icon = icon("chart-bar"), class = "btn-primary"),
+        actionButton("go_detalle", label = "Detalle del Tramo", icon = icon("file-alt"), class = "btn-info"),
+        actionButton("go_nueva_visualizacion", label = "Nueva Visualización", icon = icon("image"), class = "btn-success")
+      ),
+      
+      mainPanel(
+        h3(textOutput("bienvenida_titulo")),
+        p("Usa los botones del panel lateral para navegar por las secciones."),
+        
+        # Contenido dinámico basado en la elección de 'Pacientes' o 'Eventos'
+        conditionalPanel(
+          condition = "input.tipo_analisis == 'Pacientes'",
+          h4("Analizar Pacientes:"),
+          p("Aquí puedes ver los análisis relacionados con los pacientes.")
+        ),
+        
+        conditionalPanel(
+          condition = "input.tipo_analisis == 'Eventos'",
+          h4("Analizar Eventos:"),
+          p("Aquí puedes ver los análisis relacionados con los eventos.")
+        )
+      )
+    )
   )
 }
 
