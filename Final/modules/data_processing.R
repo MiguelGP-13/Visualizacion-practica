@@ -1,6 +1,4 @@
 # modules/data_processing.R
-library(dplyr)
-library(readxl)
 
 cargar_datos <- function() {
   # Cargar datos desde los archivos de Excel

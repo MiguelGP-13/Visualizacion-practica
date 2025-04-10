@@ -1,6 +1,7 @@
 # modules/views/grafico_eventos_ui.R
 
-grafico_eventos_ui <- function(pacientes) {
+grafico_eventos_ui <- function(datos) {
+  pacientes <- datos$pacientes
   fluidPage(
     titlePanel("Visualización del Gráfico de Eventos"),
     sidebarLayout(

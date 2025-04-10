@@ -1,10 +1,14 @@
 # app.R
 library(shiny)
+
 library(ggplot2)
 library(dplyr)
+
 library(readxl)
+library(readr)
+
 library(shinythemes)
-library(ggalluvial)
+
 
 
 # Cargar módulos
@@ -16,5 +20,5 @@ source("modules/server_module.R")
 datos <- cargar_datos()  # Función del módulo de procesamiento de datos
 
 # Ejecutar la app
-shinyApp(ui = ui(datos$pacientes), server = server(datos))
+shinyApp(ui = ui(datos), server = server(datos))
 

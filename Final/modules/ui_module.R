@@ -13,11 +13,8 @@ ui <- function(pacientes) {
     title = "Aplicación Interactiva",
     theme = shinytheme("cerulean"),
     tabPanel("Inicio", main_ui()),                      # Ventana de inicio
-    tabPanel("Gráfico Eventos", grafico_eventos_ui(pacientes)), # Ventana del gráfico principal
-     tabPanel("Timeline Cardiovascular", timeline_ui("timeline")), 
-    tabPanel("Sankey Terapias", sankey_ui("sankey")), 
-    tabPanel("Bubble Diagnósticos", bubble_ui("bubble")), 
-    # tabPanel("Perfil Individual", perfil_ui("perfil")),
+    tabPanel("Gráfico Eventos", grafico_eventos_ui(pacientes)), # Ventana del gráfico eventos
+    # tabPanel("Perfil Individual", perfil_ui("perfil")), # Reporte de un paciente
   )
 }
 
