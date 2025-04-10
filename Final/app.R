@@ -3,6 +3,9 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 library(readxl)
+library(shinythemes)
+library(ggalluvial)
+
 
 # Cargar módulos
 source("modules/data_processing.R")
