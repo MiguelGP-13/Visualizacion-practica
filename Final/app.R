@@ -1,6 +1,6 @@
 # app.R
 library(shiny)
-# library(shinyjs)
+library(shinythemes)
 
 library(plotly)
 library(ggplot2)
