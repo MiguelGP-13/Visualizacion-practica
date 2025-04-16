@@ -5,6 +5,10 @@ cargar_datos <- function() {
   pacientes <- read_excel("data/pacientes.xlsx", sheet = 1)
   eventos_sangrado <- read_excel("data/eventos.xlsx", sheet = "sangrado")
   eventos_tromboticos <- read_excel("data/eventos.xlsx", sheet = "trombotico")
+  cardiovascular <- read.csv('data/historia_cardiovascular_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
+  habitos <- read_excel("data/pacientes.xlsx", sheet = 6)
+  factores_riesgo <- read.csv('data/factores_riesgo_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
+
   
   # Agregar edad y sexo a las tablas de eventos
   eventos_sangrado <- eventos_sangrado %>%
@@ -26,11 +30,33 @@ cargar_datos <- function() {
     eventos_tromboticos %>% mutate(Evento = "Trombotico")
   )
   
+  # Unir y procesar datos
+  full_pacientes <- pacientes %>%
+    inner_join(habitos, by = c("Paciente" = "Codígo")) %>%
+    inner_join(factores_riesgo, by = c("Paciente" = "Codígo")) %>%
+    inner_join(cardiovascular, by = "Paciente") %>%
+    mutate(
+      Tabaquismo_num = case_when(
+        Tabaquismo == "NEVER_SMOKER" ~ 0,
+        Tabaquismo == "EX_SMOKER" ~ 1,
+        Tabaquismo == "SMOKER" ~ 2
+      ),
+      Consumo_diario_de_alcohol_num = case_when(
+        `Consumo diario de alcohol` == "NO" ~ 0,
+        `Consumo diario de alcohol` == "YES" ~ 1
+      ),
+      Minutos_intervalo = cut(`Minutos semanales de actividad aeróbica`, 
+                              breaks = seq(0, max(`Minutos semanales de actividad aeróbica`, na.rm = TRUE), by = 60),
+                              include.lowest = TRUE, right = FALSE, labels = FALSE)
+    )
+
+
   # Devolver los datos preparados
   list(
     pacientes = pacientes,
     eventos_sangrado = eventos_sangrado,
     eventos_tromboticos = eventos_tromboticos,
-    eventos_totales = eventos_totales
+    eventos_totales = eventos_totales,
+    full_pacientes = full_pacientes
   )
 }

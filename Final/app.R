@@ -1,12 +1,15 @@
 # app.R
 library(shiny)
+# library(shinyjs)
 
+library(plotly)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 
 library(readxl)
 
-library(bslib)
+# library(bslib)
 
 
 

@@ -8,7 +8,7 @@ main_ui <- function() {
         h4("Selecciona una sección para explorar:"),
         actionButton("go_grafico", "Gráfico de Eventos"),
         actionButton("go_detalle", "Detalle del Tramo"),
-        actionButton("go_nueva_visualizacion", "Nueva Visualización")
+        actionButton("go_nueva_visualizacion", "Detalle de los pacientes")
       ),
       mainPanel(
         h3("¿Qué deseas hacer?"),

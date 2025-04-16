@@ -6,10 +6,10 @@ library(reshape2) # Para heatmap
 library(readxl)
 
 # Cargar datos
-pacientes <- read_excel("data/pacientes.xlsx", sheet = 1)
-cardiovascular <- read.csv('data/historia_cardiovascular_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
-habitos <- read_excel("data/pacientes.xlsx", sheet = 6)
-factores_riesgo <- read.csv('data/factores_riesgo_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
+pacientes <- read_excel("../data/pacientes.xlsx", sheet = 1)
+cardiovascular <- read.csv('../data/historia_cardiovascular_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
+habitos <- read_excel("../data/pacientes.xlsx", sheet = 6)
+factores_riesgo <- read.csv('../data/factores_riesgo_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
 
 # Procesar datos
 datos <- pacientes %>%
@@ -52,7 +52,7 @@ ui <- fluidPage(
         selectInput("factores", "Selecciona un Factor de Riesgo:", 
                     choices = c("Tabaquismo", "Consumo diario de alcohol", 
                                 "Dieta Mediterránea", "Deficit sensorial"),
-                    selected = "Tabaquismo", multiple = FALSE)
+                    selected = "Tabaquismo", multiple = TRUE)
       ),
       conditionalPanel(
         condition = "input.tabs == 'Heatmap'", 
@@ -72,51 +72,62 @@ ui <- fluidPage(
 
 # Servidor
 server <- function(input, output, session) {
+  # Columnas combinadas:
+  crear_combinacion_factores <- reactive({
+    req(input$factores)
+    
+    datos %>%
+      mutate(Grupo_Factores = apply(select(., all_of(input$factores)), 1, function(row) {
+        paste(row, collapse = " & ")
+      }))
+  })
+
   
   # Generar Heatmap con opción de porcentajes o valores absolutos
   output$heatmap <- renderPlot({
-    datos_filtrados <- datos %>%
-      select(all_of(c(input$enfermedades, input$factores))) %>%
-      drop_na()
-    
-    # Calcular frecuencias y porcentajes
-    tabla_frecuencias <- datos_filtrados %>%
-      count(across(all_of(input$factores)), across(all_of(input$enfermedades))) %>%
-      group_by(across(all_of(input$factores))) %>%
-      mutate(total_factor = sum(n)) %>%
-      ungroup() %>%
-      mutate(porcentaje = n / total_factor * 100)
-    
-    # Elegir tipo de coloración
-    fill_var <- if (input$porcentajes) "porcentaje" else "n"
-    label_var <- if (input$porcentajes) "Porcentaje" else "Conteo"
-    
-    # Crear el heatmap
-    ggplot(tabla_frecuencias, aes(x = !!sym(input$factores), y = !!sym(input$enfermedades), fill = !!sym(fill_var))) +
-      geom_tile() +
-      geom_text(aes(label = if (input$porcentajes) paste0(round(porcentaje, 1), "%\n(", n, ")") else n), 
-                color = "black", size = 5) + 
-      scale_fill_gradient(low = "white", high = "blue") +
-      labs(title = "Heatmap de Hábitos y Factores de Riesgo",
-           x = input$factores,
-           y = input$enfermedades,
-           fill = label_var) +
-      theme_minimal()
-  })
+  req(input$factores, input$enfermedades)
+  
+  datos_filtrados <- crear_combinacion_factores() %>%
+    select(Grupo_Factores, all_of(input$enfermedades)) %>%
+    drop_na()
+  
+  tabla_frecuencias <- datos_filtrados %>%
+    count(Grupo_Factores, !!sym(input$enfermedades)) %>%
+    group_by(Grupo_Factores) %>%
+    mutate(total_factor = sum(n)) %>%
+    ungroup() %>%
+    mutate(porcentaje = n / total_factor * 100)
+  
+  fill_var <- if (input$porcentajes) "porcentaje" else "n"
+  label_var <- if (input$porcentajes) "Porcentaje" else "Conteo"
+  
+  ggplot(tabla_frecuencias, aes(x = Grupo_Factores, y = !!sym(input$enfermedades), fill = !!sym(fill_var))) +
+    geom_tile() +
+    geom_text(aes(label = if (input$porcentajes) paste0(round(porcentaje, 1), "%\n(", n, ")") else n), 
+              color = "black", size = 5) + 
+    scale_fill_gradient(low = "white", high = "blue") +
+    labs(title = "Heatmap de Combinaciones de Factores de Riesgo",
+         x = "Combinación de Factores",
+         y = input$enfermedades,
+         fill = label_var) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+})
+
 
   # Generar Boxplot
   output$boxplot <- renderPlot({
-    ggplot(datos, aes(
-      x = !!sym(input$factores), 
-      y = !!sym("Max valor P. Sistólica"), 
-      fill = !!sym(input$factores)
-    )) +
-      geom_boxplot() +
-      labs(title = "Boxplot por Factor de Riesgo",
-           x = input$factores,
-           y = "Max valor P. Sistólica") +
-      theme_minimal()
-  })
+  datos_combinados <- crear_combinacion_factores()
+  
+  ggplot(datos_combinados, aes(x = Grupo_Factores, y = `Max valor P. Sistólica`, fill = Grupo_Factores)) +
+    geom_boxplot() +
+    labs(title = "Boxplot por Combinación de Factores de Riesgo",
+         x = "Combinación de Factores",
+         y = "Max valor P. Sistólica") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+})
+
 
   # Generar Gráfico de Burbujas
   output$bubblePlot <- renderPlot({

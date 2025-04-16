@@ -2,7 +2,7 @@
 
 # Cargar las gráficas
 source("modules/visualizations/grafico_eventos.R")
-# source("modules/visualizations/perfil_individual.R")
+source("modules/visualizations/descripcion_pacientes.R")
 
 server <- function(datos) {
   function(input, output, session) {
@@ -12,6 +12,6 @@ server <- function(datos) {
 
     # Delegar visualización principal
     crear_grafico_eventos(input, output, session, datos, ranges, click_info)
-    # perfil_server("perfil", datos$pacientes)
+    crear_grafico_descripcion_pacientes(input, output, session, datos, ranges, click_info) 
   }
 }
