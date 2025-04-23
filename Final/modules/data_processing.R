@@ -2,12 +2,12 @@
 
 cargar_datos <- function() {
   # Cargar datos desde los archivos de Excel
-  pacientes <- read_excel("data/pacientes.xlsx", sheet = 1)
-  eventos_sangrado <- read_excel("data/eventos.xlsx", sheet = "sangrado")
-  eventos_tromboticos <- read_excel("data/eventos.xlsx", sheet = "trombotico")
-  cardiovascular <- read.csv('data/historia_cardiovascular_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
-  habitos <- read_excel("data/pacientes.xlsx", sheet = 6)
-  factores_riesgo <- read.csv('data/factores_riesgo_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
+  pacientes <- read_excel("../data/pacientes.xlsx", sheet = 1)
+  eventos_sangrado <- read_excel("../data/eventos.xlsx", sheet = "sangrado")
+  eventos_tromboticos <- read_excel("../data/eventos.xlsx", sheet = "trombotico")
+  cardiovascular <- read.csv('../data/historia_cardiovascular_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
+  habitos <- read_excel("../data/pacientes.xlsx", sheet = 6)
+  factores_riesgo <- read.csv('../data/factores_riesgo_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
 
   
   # Agregar edad y sexo a las tablas de eventos

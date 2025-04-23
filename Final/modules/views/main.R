@@ -1,5 +1,4 @@
 # modules/views/main.R
-
 main_ui <- function() {
   fluidPage(
     titlePanel("Bienvenido a la Aplicación Interactiva"),
