@@ -17,6 +17,7 @@ cargar_datos <- function() {
            `Gravedad de la hemorragia (TIMI)`, `Gravedad de la hemorragia (GUSTO)`, 
            `Gravedad de la hemorragia (BARC)`, `Procedimientos terapéuticos`, 
            `Descenso de hemoglobina`, `¿El paciente ha subido una trasfusión?`,
+           `Caracterización de la hemorragia`,
            `ANTICOAGULANT_STRING`, `ANTIPLATELET_STRING`, `OTHER_STRING`)
   
   eventos_tromboticos <- eventos_tromboticos %>%

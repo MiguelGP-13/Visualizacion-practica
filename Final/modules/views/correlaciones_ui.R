@@ -15,12 +15,30 @@ correlaciones_ui <- function(datos) {
                      }
                    ")),
                    h4("Variables para Sangrado"),
-                   selectInput("vars_x_sangrado", "Eje X", 
-                               choices = names(datos$eventos_sangrado),
-                               multiple = TRUE),
-                   selectInput("vars_y_sangrado", "Eje Y",
-                               choices = names(datos$eventos_sangrado),
-                               multiple = TRUE)
+                   selectInput("var_x_sangrado", "Variable en eje X", 
+                               choices = c(
+                                 "ANTICOAGULANT_STRING",
+                                 "ANTIPLATELET_STRING",
+                                 "Caracterización de la hemorragia",
+                                 "Procedimientos terapéuticos",
+                                 "Descenso de hemoglobina",
+                                 "Gravedad de la hemorragia (TIMI)",
+                                 "Tipo de sangrado",
+                                 "¿El paciente ha subido una trasfusión?"
+                               ),
+                               multiple = FALSE),
+                   selectInput("var_y_sangrado", "Variable en eje Y",
+                               choices = c(
+                                 "ANTICOAGULANT_STRING",
+                                 "ANTIPLATELET_STRING",
+                                 "Caracterización de la hemorragia",
+                                 "Procedimientos terapéuticos",
+                                 "Descenso de hemoglobina",
+                                 "Gravedad de la hemorragia (TIMI)",
+                                 "Tipo de sangrado",
+                                 "¿El paciente ha subido una trasfusión?"
+                               ),
+                               multiple = FALSE)
                  ),
                  mainPanel(
                    plotOutput("correlaciones_plot_sangrado", height = "600px")
@@ -40,12 +58,24 @@ correlaciones_ui <- function(datos) {
                      }
                    ")),
                    h4("Variables para Trombótico"),
-                   selectInput("vars_x_trombotico", "Eje X", 
-                               choices = names(datos$eventos_tromboticos),
-                               multiple = TRUE),
-                   selectInput("vars_y_trombotico", "Eje Y",
-                               choices = names(datos$eventos_tromboticos),
-                               multiple = TRUE)
+                   selectInput("var_x_trombotico", "Variable en eje X", 
+                               choices = c(
+                                 "ANTICOAGULANT_STRING",
+                                 "ANTIPLATELET_STRING",
+                                 "TYPE_THROMBOTIC_PRE",
+                                 "Tipo de evento trombótico",
+                                 "Tipo de invervención"
+                               ),
+                               multiple = FALSE),
+                   selectInput("var_y_trombotico", "Variable en eje Y",
+                               choices = c(
+                                 "ANTICOAGULANT_STRING",
+                                 "ANTIPLATELET_STRING",
+                                 "TYPE_THROMBOTIC_PRE",
+                                 "Tipo de evento trombótico",
+                                 "Tipo de invervención"
+                               ),
+                               multiple = FALSE)
                  ),
                  mainPanel(
                    plotOutput("correlaciones_plot_trombotico", height = "600px")
