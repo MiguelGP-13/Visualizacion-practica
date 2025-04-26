@@ -37,9 +37,12 @@ crear_grafico_eventos <- function(input, output, session, datos, ranges, click_i
     
     # Filtrado base
     datos_filtrados <- datos$eventos_totales %>%
-      filter((click_fill == "Todos" | Evento == click_fill) &
-               (input$sexo == "Todos" | Sexo == input$sexo) &
-               (Edad >= input$edad[1] & Edad <= input$edad[2]))
+    filter((input$tipo_evento == "Todos" | Evento == input$tipo_evento) &
+          (input$sexo == "Todos" | Sexo == input$sexo) &
+          (Edad >= input$edad[1] & Edad <= input$edad[2]) &
+          (input$anticoagulante == "Todos" | `Tipo de anticoagulante` == input$anticoagulante) &
+          (input$antiagregante == "Todos" | `Antiagregante 1` == input$antiagregante))
+
     
     # Filtros adicionales
     if (click_fill == "Sangrado" && !is.null(input$gravedad) && length(input$gravedad) > 0) {
@@ -81,6 +84,14 @@ crear_grafico_eventos <- function(input, output, session, datos, ranges, click_i
                   rownames = FALSE)
       }
     })
+    output$grafico_correlacion <- renderPlot({
+    ggplot(datos_filtrados, aes(x = `Tipo de anticoagulante`, y = Evento, color = `Antiagregante 1`)) +
+      geom_jitter(width = 0.2, height = 0.2, alpha = 0.7) +
+      labs(title = "Correlación entre Tratamientos y Eventos",
+          x = "Tipo de Anticoagulante", y = "Evento") +
+      theme_minimal()
+    })
+
   })
   
   

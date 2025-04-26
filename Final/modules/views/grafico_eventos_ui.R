@@ -6,21 +6,19 @@ grafico_eventos_ui <- function(datos) {
     titlePanel("Visualización del Gráfico de Eventos"),
     sidebarLayout(
       sidebarPanel(
-        selectInput("tipo_evento", "Tipo de Evento:", 
-                    choices = c("Todos", "Sangrado", "Trombotico")),
-        selectInput("sexo", "Género:", 
-                    choices = c("Todos", unique(pacientes$Sexo))),
-        sliderInput("edad", "Edad:", 
-                    min = min(pacientes$Edad), max = max(pacientes$Edad), 
-                    value = c(min(pacientes$Edad), max(pacientes$Edad))),
-        conditionalPanel(
-          condition = "input.tipo_evento == 'Sangrado'",
-          checkboxGroupInput("gravedad", "Gravedad:", choices = c())
-        ),
-        conditionalPanel(
-          condition = "input.tipo_evento == 'Trombotico'",
-          checkboxGroupInput("trombotico", "Tipo de evento trombótico:", choices = c())
-        )
+  selectInput("tipo_evento", "Tipo de Evento:", 
+              choices = c("Todos", "Sangrado", "Trombotico")),
+  selectInput("sexo", "Género:", 
+              choices = c("Todos", unique(pacientes$Sexo))),
+  sliderInput("edad", "Edad:", 
+              min = min(pacientes$Edad), max = max(pacientes$Edad), 
+              value = c(min(pacientes$Edad), max(pacientes$Edad))),
+  
+  # Filtros de tratamientos
+  selectInput("anticoagulante", "Anticoagulante:", 
+              choices = c("Todos", unique(datos$tratamiento$`Tipo de anticoagulante`))),
+  selectInput("antiagregante", "Antiagregante:", 
+              choices = c("Todos", unique(datos$tratamiento$`Antiagregante 1`)))
       ),
       mainPanel(
         plotOutput("grafico_eventos", 

@@ -1,4 +1,8 @@
-# modules/data_processing.R
+#modules/data_processing.R
+library(readxl)
+library(dplyr)
+library(tidyr)
+
 
 cargar_datos <- function() {
   # Cargar datos desde los archivos de Excel
@@ -8,10 +12,11 @@ cargar_datos <- function() {
   cardiovascular <- read.csv('../data/historia_cardiovascular_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
   habitos <- read_excel("../data/pacientes.xlsx", sheet = 6)
   factores_riesgo <- read.csv('../data/factores_riesgo_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
-
+  otros_diagnosticos <- read_excel("data/pacientes.xlsx", sheet = 4)
+  antitrombotico <- read.csv('data/antitrombotico_limpio.csv', header = TRUE, sep = ",", check.names = FALSE)
   
   # Agregar edad y sexo a las tablas de eventos
-  eventos_sangrado <- eventos_sangrado %>%
+  eventos_sangrado_join <- eventos_sangrado %>%
     inner_join(pacientes, by = "Paciente") %>%
     select(Paciente, Edad, Sexo, `Tipo de sangrado`, 
            `Gravedad de la hemorragia (TIMI)`, `Gravedad de la hemorragia (GUSTO)`, 
@@ -20,7 +25,7 @@ cargar_datos <- function() {
            `Caracterización de la hemorragia`,
            `ANTICOAGULANT_STRING`, `ANTIPLATELET_STRING`, `OTHER_STRING`)
   
-  eventos_tromboticos <- eventos_tromboticos %>%
+  eventos_tromboticos_join <- eventos_tromboticos %>%
     inner_join(pacientes, by = "Paciente") %>%
     select(Paciente, Edad, Sexo, 
            `Tipo de evento trombótico`, `Tipo de invervención`, `TYPE_THROMBOTIC_PRE`, 
@@ -28,8 +33,8 @@ cargar_datos <- function() {
   
   # Unir ambas tablas en una sola
   eventos_totales <- bind_rows(
-    eventos_sangrado %>% mutate(Evento = "Sangrado"),
-    eventos_tromboticos %>% mutate(Evento = "Trombotico")
+    eventos_sangrado_join %>% mutate(Evento = "Sangrado"),
+    eventos_tromboticos_join %>% mutate(Evento = "Trombotico")
   )
   
   # Unir y procesar datos
@@ -52,13 +57,27 @@ cargar_datos <- function() {
                               include.lowest = TRUE, right = FALSE, labels = FALSE)
     )
 
+  eventos_sangrado_completos <- eventos_sangrado %>%
+    inner_join(full_pacientes, by = "Paciente")
+
+  eventos_tromboticos_completos <- eventos_tromboticos %>%
+    inner_join(full_pacientes, by = "Paciente")
+
+
+  eventos_totales_completos <- bind_rows(
+    eventos_sangrado_completos %>% mutate(Evento = "Sangrado"),
+    eventos_tromboticos_completos %>% mutate(Evento = "Trombotico")
+  )
 
   # Devolver los datos preparados
   list(
     pacientes = pacientes,
-    eventos_sangrado = eventos_sangrado,
-    eventos_tromboticos = eventos_tromboticos,
+    eventos_sangrado = eventos_sangrado_join,
+    eventos_tromboticos = eventos_tromboticos_join,
     eventos_totales = eventos_totales,
-    full_pacientes = full_pacientes
+    full_pacientes = full_pacientes,
+    eventos_sangrado_completos = eventos_sangrado_completos,
+    eventos_tromboticos_completos = eventos_tromboticos_completos,
+    eventos_totales_completos = eventos_totales_completos
   )
 }

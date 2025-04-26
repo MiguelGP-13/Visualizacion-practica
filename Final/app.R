@@ -21,6 +21,7 @@ source("modules/server_module.R")
 
 # Preparar los datos
 datos <- cargar_datos()  # Función del módulo de procesamiento de datos
+View(datos$eventos_totales_completos)
 
 # Ejecutar la app
 shinyApp(ui = ui(datos), server = server(datos))
