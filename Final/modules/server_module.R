@@ -17,9 +17,10 @@ server <- function(datos) {
     # Delegar visualización principal
     crear_grafico_eventos(input, output, session, datos, ranges, click_info)
     crear_grafico_descripcion_pacientes(input, output, session, datos, ranges, click_info)
+    crear_comparacion_eventos(input, output, session, datos,ranges)
     crear_correlaciones_sangrado(input, output, session, datos)
     crear_correlaciones_trombotico(input, output, session, datos)
-    crear_comparacion_eventos(input, output, session, datos)
+    
 
     # Navegación con los botones de la pantalla de inicio
     observeEvent(input$go_grafico, {

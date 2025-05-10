@@ -1,3 +1,4 @@
+# modules/views/comparacion_eventos_ui.R
 comparacion_eventos_ui <- function(datos) {
   fluidPage(
     titlePanel("Comparación de Tramos"),
@@ -31,8 +32,7 @@ comparacion_eventos_ui <- function(datos) {
       ),
       column(9,
              h3("Histograma A"),
-             plotOutput("cmp_plot_a", height = "300px",
-                        brush = brushOpts(id = "brush_a", resetOnNew = TRUE))
+             plotOutput("cmp_plot_a", height = "300px")  # Eliminamos los eventos de interacción
       )
     ),
     
@@ -55,8 +55,7 @@ comparacion_eventos_ui <- function(datos) {
       ),
       column(9,
              h3("Histograma B"),
-             plotOutput("cmp_plot_b", height = "300px",
-                        brush = brushOpts(id = "brush_b", resetOnNew = TRUE))
+             plotOutput("cmp_plot_b", height = "300px")  # También eliminamos los eventos de interacción
       )
     )
   )
