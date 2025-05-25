@@ -18,7 +18,5 @@ ui <- function(pacientes) {
     tabPanel("Gráfico Eventos", grafico_eventos_ui(pacientes)),
     tabPanel("Comparación Tramos", comparacion_eventos_ui(pacientes)),
     tabPanel("Correlaciones", correlaciones_ui(pacientes))
-    
   )
-  
 }
