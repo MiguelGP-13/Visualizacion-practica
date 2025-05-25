@@ -1,1 +1,0 @@
-# Visualizacion-practica

@@ -4,8 +4,8 @@
 source("modules/views/main.R")
 source("modules/views/grafico_eventos_ui.R")
 source("modules/views/descripcion_pacientes_ui.R")
-source("modules/views/detalle_tramo_ui.R")
 source("modules/views/correlaciones_ui.R")
+source("modules/views/comparacion_eventos_ui.R")
 
 # Definir la UI principal
 ui <- function(pacientes) {
@@ -16,9 +16,7 @@ ui <- function(pacientes) {
     tabPanel("Inicio", main_ui()),
     tabPanel("Descripción pacientes", grafico_descripcion_pacientes_ui(pacientes)),
     tabPanel("Gráfico Eventos", grafico_eventos_ui(pacientes)),
-    tabPanel("Detalle del Tramo", detalle_tramo_ui(pacientes)),
+    tabPanel("Comparación Tramos", comparacion_eventos_ui(pacientes)),
     tabPanel("Correlaciones", correlaciones_ui(pacientes))
-    
   )
-  
 }

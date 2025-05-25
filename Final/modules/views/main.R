@@ -5,9 +5,9 @@ main_ui <- function() {
     sidebarLayout(
       sidebarPanel(
         h4("Selecciona una sección para explorar:"),
-        actionButton("go_grafico", "Gráfico de Eventos"),
-        actionButton("go_detalle", "Detalle del Tramo"),
         actionButton("go_descripcion_pacientes", "Detalle de los pacientes"),
+        actionButton("go_grafico", "Gráfico de Eventos"),
+        actionButton("go_comparacion", "Comparación Tramos"),
         actionButton("go_correlaciones", "Correlaciones")
         
       ),

@@ -112,12 +112,21 @@ crear_grafico_descripcion_pacientes <- function(input, output, session, data, ra
           grupo_nombres <- niveles_grupos()
           grupo_real <- grupo_nombres[grupo_idx]
 
-          yvalor <- as.character(click$y)
           enfermedad <- input$enfermedades
+        
+          # Recuperar los niveles reales del eje Y en el orden correcto
+          datos_filtrados_heatmap <- crear_combinacion_factores() %>%
+            select(Grupo_Factores, all_of(enfermedad)) %>% drop_na()
 
-          # Convertir el valor de yvalor de acuerdo a la codificación correcta
-          if (yvalor %in% c("1", "2")) {
-            yvalor <- ifelse(yvalor == "1", "NO", "YES")
+          # Asegurar que los niveles se extraen en el mismo orden que aparecen en el heatmap
+          niveles_enfermedad <- levels(factor(datos_filtrados_heatmap[[enfermedad]]))
+
+          # Mapear la posición numérica del eje Y al valor correcto
+          y_idx <- as.numeric(click$y)
+          if (y_idx <= length(niveles_enfermedad)) {
+            yvalor <- niveles_enfermedad[y_idx]
+          } else {
+            yvalor <- as.character(click$y)  # En caso de error, usar el valor sin modificar
           }
 
           datos_con_grupo <- crear_combinacion_factores()
